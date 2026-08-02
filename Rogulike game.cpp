@@ -12,6 +12,7 @@ void showMenustart();
 void showMenuGame();
 void showMenuFight();
 void showMenuUpp();
+
 //==============================
 // КЛАССЫ
 //==============================
@@ -22,7 +23,7 @@ class player{
     int lvl = 1;
     int dmg = 10;
     int gold = 0;
-    int exp = 0;
+    int exp = 1110;
     int steps = 0;
     int kills = 0;
     int currentExpPerLvl = 0;
@@ -118,11 +119,21 @@ void showStatistik(const player& hero){
         cout << "Hero lvl:" << hero.lvl << endl;
         cout << "Hero freelvlpoint:" << hero.lvlpoint << endl;
         cout << "Hero hp:" << hero.hp << endl;
-        cout << "Hero maxhp:" << hero.maxhp;
+        cout << "Hero maxhp:" << hero.maxhp << endl;
         cout << "Hero dmg:" << hero.dmg << endl;
         cout << "Hero kills:" << hero.kills << endl;
         cout << "Hero gold:" << hero.gold << endl;
     }
+
+//==============================
+// Функции
+//==============================
+int afight(player& hero,enemy& currentEnemy);
+void lvlup(player& hero);
+void hpup(player& hero);
+void dmgup(player& hero);
+void save(const player& hero);
+void load(player& hero);
 //==============================
 // Main
 //==============================
@@ -130,7 +141,12 @@ int main(){
     srand(time(0));
     vector<string>inventory;
     int choice;
+    player hero;
     bool gamestart = false;
+    int choicegame;
+    bool fight = false;
+    bool upp = false;
+    int choiceUpp;
     do{
         showMenustart();
         cin >> choice; 
@@ -141,6 +157,8 @@ int main(){
                 break;
             case 2:
                 cout << "Load game\n";
+                load(hero);
+                gamestart = true;
                 break;
             case 0:
                 cout << "exit\n";
@@ -149,11 +167,6 @@ int main(){
                 cout << "Invalid choice. Please try again.\n";
         }
     } while ((choice != 0) xor (gamestart == true));
-    int choicegame;
-    player hero;
-    bool fight = false;
-    bool upp = false;
-    int choiceUpp;
     if(gamestart){
         do
         {
@@ -176,33 +189,14 @@ int main(){
                         {
                         case 1:{
                             cout << "Hit\n";
-                            
-                            cout << "Your hp: " << hero.hp << endl;
-                            cout << "Enemy: " << currentEnemy.name << endl;
-                            cout << "Enemy hp:" << currentEnemy.hp << endl;
-                            currentEnemy.hp -= hero.dmg;
-                            cout << "You hit enemy on " << hero.dmg << endl;
-                            hero.hp -=  currentEnemy.dmg;
-                            cout << "You has been hited on " << currentEnemy.dmg << endl;
-                            cout << "Your hp: " << hero.hp << endl;
-                            cout << "Enemy hp:" << currentEnemy.hp << endl;
-                            if (currentEnemy.hp <= 0)
+                            int result = afight(hero,currentEnemy);
+                            if(result == 1){
+                                return 0;
+                            }
+                            if (result == 0)
                             {
-                                cout << "You win!!!" << endl;
-                                hero.gold +=currentEnemy.giveGold;
-                                hero.exp += currentEnemy.giveExp;
-                                hero.kills ++;
-                                currentEnemy.deathCount++;
-                                cout << "You kill for all time: " << hero.kills << endl;
-                                cout << "This enemy tipe killd " << currentEnemy.deathCount << endl;
                                 fight = false;
                                 break;
-
-                            }
-                            if(hero.hp <=0 ){
-                                cout << "You die skill isue" << endl;
-                                fight = false;
-                                return 0;
                             }
                             break;
                         }
@@ -213,8 +207,7 @@ int main(){
                     } while (fight);
                 }
                 }
-                
-                
+  
             case 2:
                 break;
             case 3:
@@ -228,53 +221,17 @@ int main(){
                 {
                 case 1:{
                     cout << "1. Lvl up curren exp\n";
-                    hero.currentExpPerLvl = 100 + hero.lvl*3;
-                    int freeexp = hero.exp;
-                    freeexp -= hero.currentExpPerLvl;
-                    if (freeexp >= 0)
-                    {   hero.exp -= hero.currentExpPerLvl;
-                        hero.lvl++;
-                        hero.lvlpoint++;
-                        cout << "You lvl up !!! Your exp: " << hero.exp << "Xp per lvl: " << hero.currentExpPerLvl << endl;
-                    
-                    }
-                    else{
-                        cout << "Error you have no xp,you xp: " << hero.exp << "Xp per lvl: " << hero.currentExpPerLvl << endl;
-                    }
+                    lvlup(hero);
                     break;
                 }
                 case 2:{
                     cout << "2. Hp up\n";
-                    int freepoIint = hero.lvlpoint;
-                    freepoIint -= 1;
-                    if (freepoIint >=0)
-                    {   hero.maxhp += 5;
-                        hero.hp += 5;
-                        hero.lvlpoint -= 1;
-                        cout << "You hp up !!! Your freelvlpoints: " << hero.lvlpoint << endl;
-                        cout << "Your hp now: " << hero.hp << endl;
-
-                    }
-                    else{
-                        cout << "Error you have no free lvlpoints,you xp: " << hero.lvlpoint << endl;
-                    }
+                    hpup(hero);
                     break;
                 }
                 case 3:{
                     cout << "3. Dmg Up\n";
-                    int freepoint = hero.lvlpoint;
-                    freepoint -= 1;
-                    if (freepoint >=0)
-                    {
-                        hero.dmg += 3;
-                        hero.lvlpoint -= 1;
-                        cout << "You dmg up !!! Your freelvlpoints: " << hero.lvlpoint << endl;
-                        cout << "Your dmg now: " << hero.dmg << endl;
-
-                    }
-                    else{
-                        cout << "Error you have no free lvlpoints,you xp: " << hero.lvlpoint << endl;
-                    }
+                    dmgup(hero);
                     break;
                 }
                 case 0:
@@ -282,7 +239,6 @@ int main(){
                 default:
                     break;
                 }
-
                 } while (choice != 0 xor upp);
                 break;
             case 4:
@@ -292,6 +248,8 @@ int main(){
                 showStatistik(hero);
                 break;
             case 6:
+                cout << "6. save\n";
+                    save(hero);
                 break;
             case 7:
                 break;
@@ -305,6 +263,9 @@ int main(){
     }
     return 0;
 }
+//==============================
+// Main over
+//==============================
 void showMenustart() {
     cout << "\n========== Menu ==========\n";
     cout << "1. New game\n";
@@ -344,4 +305,114 @@ void showMenuUpp(){
     cout << "0. exit\n";
     cout << "===========================\n";
     cout << "Your choice: ";
+}
+int afight(player& hero,enemy& currentEnemy){
+    cout << "Your hp: " << hero.hp << endl;
+    cout << "Enemy: " << currentEnemy.name << endl;
+    cout << "Enemy hp:" << currentEnemy.hp << endl;
+    currentEnemy.hp -= hero.dmg;
+    cout << "You hit enemy on " << hero.dmg << endl;
+    hero.hp -=  currentEnemy.dmg;
+    cout << "You has been hited on " << currentEnemy.dmg << endl;
+    cout << "Your hp: " << hero.hp << endl;
+    cout << "Enemy hp:" << currentEnemy.hp << endl;
+    if (currentEnemy.hp <= 0)
+    {
+        cout << "You win!!!" << endl;
+        hero.gold +=currentEnemy.giveGold;
+        hero.exp += currentEnemy.giveExp;
+        hero.kills ++;
+        currentEnemy.deathCount++;
+        cout << "You kill for all time: " << hero.kills << endl;
+        cout << "This enemy tipe killd " << currentEnemy.deathCount << endl;
+
+        return 0;
+
+    }
+    if(hero.hp <=0 ){
+        cout << "You die skill isue" << endl;
+        return 1;
+    }
+}
+
+void lvlup(player& hero){
+    hero.currentExpPerLvl = 100 + hero.lvl*3;
+    int freeexp = hero.exp;
+    freeexp -= hero.currentExpPerLvl;
+    if (freeexp >= 0)
+    {   hero.exp -= hero.currentExpPerLvl;
+        hero.lvl++;
+        hero.lvlpoint++;
+        cout << "You lvl up !!! Your exp: " << hero.exp << "Xp per lvl: " << hero.currentExpPerLvl << endl;
+    
+    }
+    else{
+        cout << "Error you have no xp,you xp: " << hero.exp << "Xp per lvl: " << hero.currentExpPerLvl << endl;
+    }
+}
+void hpup(player& hero){
+    int freepoIint = hero.lvlpoint;
+   freepoIint -= 1;
+   if (freepoIint >=0)
+   {   hero.maxhp += 5;
+       hero.hp += 5;
+       hero.lvlpoint -= 1;
+       cout << "You hp up !!! Your freelvlpoints: " << hero.lvlpoint << endl;
+       cout << "Your hp now: " << hero.hp << endl;
+
+   }
+   else{
+       cout << "Error you have no free lvlpoints,you xp: " << hero.lvlpoint << endl;
+   }
+}
+void dmgup(player& hero){
+    int freepoint = hero.lvlpoint;
+    freepoint -= 1;
+    if (freepoint >=0)
+    {
+        hero.dmg += 3;
+        hero.lvlpoint -= 1;
+        cout << "You dmg up !!! Your freelvlpoints: " << hero.lvlpoint << endl;
+        cout << "Your dmg now: " << hero.dmg << endl;
+
+    }
+    else{
+        cout << "Error you have no free lvlpoints,you xp: " << hero.lvlpoint << endl;
+    }
+}
+void save(const player& hero){
+    ofstream saved("save.txt");
+    if (!saved)
+    {
+        cout << "Error saved.";
+        return;
+    }
+    saved << hero.exp << endl;
+    saved << hero.dmg << endl;
+    saved << hero.lvl << endl;
+    saved << hero.lvlpoint << endl;
+    saved << hero.hp << endl;
+    saved << hero.maxhp << endl;
+    saved << hero.steps << endl;
+    saved << hero.gold << endl;
+    saved << hero.kills << endl;
+    cout << "SAVED!!" << endl;
+    saved.close();
+}
+void load(player& hero){
+    ifstream saved("save.txt");
+    if (!saved)
+    {
+        cout << "Error loaded.";
+        return;
+    }  
+    saved >> hero.exp;
+    saved >> hero.dmg;
+    saved >> hero.lvl;
+    saved >> hero.lvlpoint ;
+    saved >> hero.hp;
+    saved >> hero.maxhp;
+    saved >> hero.steps;
+    saved >> hero.gold;
+    saved >> hero.kills;
 }
