@@ -12,7 +12,7 @@ void showMenustart();
 void showMenuGame();
 void showMenuFight();
 void showMenuUpp();
-
+void showMenuShop();
 //==============================
 // КЛАССЫ
 //==============================
@@ -22,7 +22,7 @@ class player{
     int hp = 100;
     int lvl = 1;
     int dmg = 10;
-    int gold = 0;
+    int gold = 200;
     int exp = 1110;
     int steps = 0;
     int kills = 0;
@@ -34,6 +34,28 @@ class player{
         cout << "Your steps is " << steps << endl;
     }
 };
+class poution{
+    public:
+    string name;
+    int healhp;
+};
+void smallHealhp(player& hero,int& countpoution){
+    if (hero.hp < hero.maxhp and countpoution > 0)
+    {   
+        countpoution -= 1;
+        hero.hp += 35;
+        if (hero.hp > hero.maxhp)
+        {
+            hero.hp = hero.maxhp;
+        }
+        cout << "You has been heald " <<  endl;
+        cout << "Count Potion: " << countpoution << endl;
+        cout << "Your hp: " << hero.hp << endl;
+    }
+    else{
+        cout << "You have max hp!!" << endl;
+    }
+}
 class enemy{
     public:
     string name;
@@ -41,7 +63,7 @@ class enemy{
     int dmg;
     int giveExp;
     int giveGold;
-    int deathCount;
+    int deathCount = 0;
 };
     enemy createOrc(player& hero)
     {
@@ -132,8 +154,9 @@ int afight(player& hero,enemy& currentEnemy);
 void lvlup(player& hero);
 void hpup(player& hero);
 void dmgup(player& hero);
-void save(const player& hero);
-void load(player& hero);
+void save(const player& hero,const int& countPotion);
+void load(player& hero,int& countPotion);
+void buy(player& hero,int& smallPoutionCount);
 //==============================
 // Main
 //==============================
@@ -142,11 +165,13 @@ int main(){
     vector<string>inventory;
     int choice;
     player hero;
+    poution smallpoution;
     bool gamestart = false;
     int choicegame;
     bool fight = false;
     bool upp = false;
     int choiceUpp;
+    int smallPoutionCount = 0;
     do{
         showMenustart();
         cin >> choice; 
@@ -157,7 +182,7 @@ int main(){
                 break;
             case 2:
                 cout << "Load game\n";
-                load(hero);
+                load(hero,smallPoutionCount);
                 gamestart = true;
                 break;
             case 0:
@@ -200,16 +225,24 @@ int main(){
                             }
                             break;
                         }
+                        case 2:
+                            smallHealhp(hero,smallPoutionCount);
+                            break;
                         default:
                             cout << "Invalid choice. Please try again.\n";
                             break;
                         }
                     } while (fight);
-                }
+                } 
+                break;
                 }
   
             case 2:
+                cout << "Shop\n";
+                buy(hero,smallPoutionCount);
+
                 break;
+
             case 3:
                 cout << "3. Upgrade\n";
                 upp = true;
@@ -249,7 +282,7 @@ int main(){
                 break;
             case 6:
                 cout << "6. save\n";
-                    save(hero);
+                    save(hero,smallPoutionCount);
                 break;
             case 7:
                 break;
@@ -290,7 +323,7 @@ void showMenuGame() {
 void showMenuFight(){
     cout << "\n========== Fight Menu ==========\n";
     cout << "1. Hit\n";
-    cout << "2. Shop\n";
+    cout << "2. heal\n";
     cout << "3. Upgrade\n";
     cout << "4. Weapon\n";
     cout << "===========================\n";
@@ -298,7 +331,7 @@ void showMenuFight(){
 
 }
 void showMenuUpp(){
-    cout << "\n========== Fight Menu ==========\n";
+    cout << "\n========== Upgrade Menu ==========\n";
     cout << "1. Lvl up curren exp\n";
     cout << "2. Hp up\n";
     cout << "3. Dmg Up\n";
@@ -306,6 +339,14 @@ void showMenuUpp(){
     cout << "===========================\n";
     cout << "Your choice: ";
 }
+void showMenuShop(){
+    cout << "\n========== Shop Menu ==========\n";
+    cout << "1. heal Potion 25 gold cost\n";
+    cout << "0. exit\n";
+    cout << "===========================\n";
+    cout << "Your choice: ";
+}
+
 int afight(player& hero,enemy& currentEnemy){
     cout << "Your hp: " << hero.hp << endl;
     cout << "Enemy: " << currentEnemy.name << endl;
@@ -380,7 +421,7 @@ void dmgup(player& hero){
         cout << "Error you have no free lvlpoints,you xp: " << hero.lvlpoint << endl;
     }
 }
-void save(const player& hero){
+void save(const player& hero,const int& countPotion){
     ofstream saved("save.txt");
     if (!saved)
     {
@@ -396,10 +437,11 @@ void save(const player& hero){
     saved << hero.steps << endl;
     saved << hero.gold << endl;
     saved << hero.kills << endl;
+    saved << countPotion << endl;
     cout << "SAVED!!" << endl;
     saved.close();
 }
-void load(player& hero){
+void load(player& hero,int& countPotion){
     ifstream saved("save.txt");
     if (!saved)
     {
@@ -415,4 +457,39 @@ void load(player& hero){
     saved >> hero.steps;
     saved >> hero.gold;
     saved >> hero.kills;
+    saved >> countPotion;
+}
+void buy(player& hero,int& smallPoutionCount){
+    int choice;
+    
+    do
+    {
+        showMenuShop();
+        cin >> choice;
+        switch (choice)
+        {
+        case 1:{
+            cout << "1. heal Potion 25 gold cost\n";
+            if (hero.gold >= 25)
+            {
+                smallPoutionCount += 1;
+                cout << "You have potions: " << smallPoutionCount << endl;
+                cout << "You buy small heal poution" << endl;
+                hero.gold -= 25;
+                break;
+            }
+            else{
+                cout << "Ti nishieb\n";
+                break;
+            }
+            break;
+        }
+        case 0:
+            break;
+        default:
+                cout << "Invalid choice. Please try again.\n";
+            break;
+        }
+    } while (choice !=0);
+    
 }
