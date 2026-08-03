@@ -1,0 +1,25 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build RPG",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "main.cpp",
+                "menu.cpp",
+                "player.cpp",
+                "save.cpp",
+                "enemy.cpp",
+                "fight.cpp",
+                "weapon.cpp",
+                "-o",
+                "output/game.exe"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
