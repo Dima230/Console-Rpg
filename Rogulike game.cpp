@@ -13,6 +13,7 @@ void showMenuGame();
 void showMenuFight();
 void showMenuUpp();
 void showMenuShop();
+void showMenWeapon();
 //==============================
 // КЛАССЫ
 //==============================
@@ -129,7 +130,7 @@ class weapon{
     int durabiliti;
     int cost;
 };
-weapon woodenSword(){
+weapon woodenSword(player& hero){
     weapon woodenSword;
     woodenSword.dmg = 10;
     woodenSword.cost = 100;
@@ -157,6 +158,7 @@ void dmgup(player& hero);
 void save(const player& hero,const int& countPotion);
 void load(player& hero,int& countPotion);
 void buy(player& hero,int& smallPoutionCount);
+void weaponff(player& hero,bool& ekvip);
 //==============================
 // Main
 //==============================
@@ -172,6 +174,7 @@ int main(){
     bool upp = false;
     int choiceUpp;
     int smallPoutionCount = 0;
+    bool ekvip = false;
     do{
         showMenustart();
         cin >> choice; 
@@ -275,6 +278,9 @@ int main(){
                 } while (choice != 0 xor upp);
                 break;
             case 4:
+                cout << "4. weapon\n";
+                weaponff(hero,ekvip);
+
                 break;
             case 5:
                 cout << "5. statistic\n";
@@ -342,6 +348,13 @@ void showMenuUpp(){
 void showMenuShop(){
     cout << "\n========== Shop Menu ==========\n";
     cout << "1. heal Potion 25 gold cost\n";
+    cout << "0. exit\n";
+    cout << "===========================\n";
+    cout << "Your choice: ";
+}
+void showMenWeapon(){
+    cout << "\n========== Weapon Menu ==========\n";
+    cout << "1. wooden sword\n";
     cout << "0. exit\n";
     cout << "===========================\n";
     cout << "Your choice: ";
@@ -491,5 +504,40 @@ void buy(player& hero,int& smallPoutionCount){
             break;
         }
     } while (choice !=0);
+    
+}
+void weaponff(player& hero,bool& ekvip){
+    int choice;
+    do
+    {
+        showMenWeapon();
+        cin >> choice;
+        switch (choice)
+        {
+        case 1:{
+            cout << "1. wooden sword\n";
+            weapon wood = woodenSword(hero);
+            if (!ekvip)
+            {
+                hero.dmg += wood.dmg;
+                ekvip = true;
+                break;
+            }
+            if (ekvip)
+            {
+                cout << "You ekvipt him befor!!" << endl;
+                break;
+            }
+            
+            break;
+        }
+        case 0:
+            break;
+        default:
+            cout << "Invalid choice. Please try again.\n";
+            break;
+        }
+        /* code */
+    } while (choice != 0);
     
 }
